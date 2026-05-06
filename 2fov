@@ -1,0 +1,39 @@
+local camera = workspace.Camera
+
+camera.FieldOfView = 120
+
+camera:GetPropertyChangedSignal("FieldOfView"):Connect(function()
+    camera.FieldOfView = 120
+end)
+
+task.spawn(function()
+    local playerGui = LocalPlayer:WaitForChild("PlayerGui")
+    local skills = playerGui:WaitForChild("Main"):WaitForChild("Skills")
+
+    local function hide(obj)
+        if obj:IsA("GuiObject") then
+            obj.Visible = false
+            obj:GetPropertyChangedSignal("Visible"):Connect(function()
+                obj.Visible = false
+            end)
+        end
+    end
+
+    local function check(skill)
+        for _, d in ipairs(skill:GetDescendants()) do
+            if d.Name == "_Mobile" or d.Name == "Mobile" or d.Name == "M1Hold" then
+                hide(d)
+            end
+        end
+        skill.DescendantAdded:Connect(function(d)
+            if d.Name == "_Mobile" or d.Name == "Mobile" or d.Name == "M1Hold" then
+                hide(d)
+            end
+        end)
+    end
+
+    for _, s in ipairs(skills:GetChildren()) do
+        check(s)
+    end
+    skills.ChildAdded:Connect(check)
+end)
